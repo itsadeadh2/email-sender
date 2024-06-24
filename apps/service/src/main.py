@@ -16,37 +16,7 @@ class Validators:
 class EmailDAL:
     def __init__(self, db=None):
         self.db = db or boto3.resource('dynamodb')
-        self.table = self.create_table()
-
-    def create_table(self):
-        try:
-            table = self.db.create_table(
-                TableName='EmailTable',
-                KeySchema=[
-                    {
-                        'AttributeName': 'email',
-                        'KeyType': 'HASH'  # Partition key
-                    }
-                ],
-                AttributeDefinitions=[
-                    {
-                        'AttributeName': 'email',
-                        'AttributeType': 'S'  # String type
-                    }
-                ],
-                ProvisionedThroughput={
-                    'ReadCapacityUnits': 5,
-                    'WriteCapacityUnits': 5
-                }
-            )
-
-            table.meta.client.get_waiter('table_exists').wait(TableName='EmailTable')
-            print("Table created successfully.")
-            return table
-        except ClientError as e:
-            if e.response['Error']['Code'] == 'ResourceInUseException':
-                print("Table already exists.")
-                return self.db.Table('EmailTable')
+        self.table = self.db.Table(os.getenv('TABLE_NAME'))
 
     def save(self, email):
         try:

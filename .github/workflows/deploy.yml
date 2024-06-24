@@ -38,6 +38,13 @@ jobs:
           template: apps/cloudformation/sqs.yml
           no-fail-on-empty-changeset: 1
 
+      - name: Deploy DynamoDB
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: email-sender-service-table
+          template: apps/cloudformation/dynamo.yml
+          no-fail-on-empty-changeset: 1
+
       - name: Install python
         uses: actions/setup-python@v5
         with:
