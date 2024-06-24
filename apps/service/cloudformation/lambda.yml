@@ -17,7 +17,7 @@ Resources:
           - LambdaExecutionRole
           - Arn
       Code:
-        S3Bucket: node-sort-bucket
+        S3Bucket: email-sender-service-bucket
         S3Key: lambda.zip
       Runtime: python3.10
       MemorySize: 128
@@ -63,5 +63,5 @@ Resources:
       CompatibleRuntimes:
         - python3.10
       Content:
-        S3Bucket: node-sort-bucket
+        S3Bucket: email-sender-service-bucket
         S3Key: dependencies.zip
