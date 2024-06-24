@@ -27,7 +27,7 @@ jobs:
       - name: Deploy bucket
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: email-sender-service
+          name: email-sender-service-bucket
           template: apps/service/cloudformation/s3.yml
           no-fail-on-empty-changeset: 1
 
@@ -47,7 +47,7 @@ jobs:
           cp -r venv/lib python/
           zip -r dependencies.zip python          
           mv apps/service/src src      
-          zip -r lambda.zip src/
+          zip -r -j lambda.zip src/
           aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
 
       - name: Deploy lambda
