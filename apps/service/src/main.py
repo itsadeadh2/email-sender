@@ -1,4 +1,7 @@
 import re
+import boto3
+import os
+from botocore.exceptions import ClientError
 from apps.service.src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
@@ -11,13 +14,64 @@ class Validators:
 
 
 class EmailDAL:
+    def __init__(self, db=None):
+        self.db = db or boto3.resource('dynamodb')
+        self.table = self.create_table()
+
+    def create_table(self):
+        try:
+            table = self.db.create_table(
+                TableName='EmailTable',
+                KeySchema=[
+                    {
+                        'AttributeName': 'email',
+                        'KeyType': 'HASH'  # Partition key
+                    }
+                ],
+                AttributeDefinitions=[
+                    {
+                        'AttributeName': 'email',
+                        'AttributeType': 'S'  # String type
+                    }
+                ],
+                ProvisionedThroughput={
+                    'ReadCapacityUnits': 5,
+                    'WriteCapacityUnits': 5
+                }
+            )
+
+            table.meta.client.get_waiter('table_exists').wait(TableName='EmailTable')
+            print("Table created successfully.")
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ResourceInUseException':
+                print("Table already exists.")
+        finally:
+            return table
+
     def save(self, email):
-        pass
+        try:
+            self.table.put_item(
+                Item={
+                    'email': email,
+                }
+            )
+        except Exception as e:
+            raise PersistenceError(f"There was an error when saving the email {str(e)}")
 
 
 class QueueService:
+    def __int__(self, sqs=None):
+        self.sqs = sqs or boto3.client('sqs')
+        self.queue_url = os.getenv('QUEUE_URL')
+
     def add_to_queue(self, email):
-        pass
+        try:
+            self.sqs.send_message(
+                QueueUrl=self.queue_url,
+                MessageBody=email
+            )
+        except Exception as e:
+            raise QueueInteractionError(f"There was an error when sending the email to the sqs queue {str(e)}")
 
 
 class Service:
@@ -59,9 +113,11 @@ class Service:
 
 
 def lambda_handler(event, context):
+    email_dal = EmailDAL()
+    queue_service = QueueService()
     service = Service(
-        event=event,
-        context=context,
-        validators=Validators
+        validators=Validators,
+        email_dal=email_dal,
+        queue_service=queue_service
     )
-    return service.handle()
+    return service.handle(event=event, context=context)
