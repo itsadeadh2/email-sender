@@ -87,7 +87,7 @@ jobs:
           cp -r venv/lib python/
           zip -r dependencies.zip python          
           mv apps/service/src src      
-          zip -r -j lambda.zip src/
+          zip -r lambda.zip apps/service
           aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
           aws s3 cp dependencies.zip s3://email-sender-service-bucket/dependencies.zip
 
