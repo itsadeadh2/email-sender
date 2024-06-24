@@ -85,9 +85,8 @@ jobs:
           pip install -r apps/service/requirements.txt
           mkdir python
           cp -r venv/lib python/
-          zip -r dependencies.zip python          
-          mv apps/service/src src      
-          zip -r lambda.zip apps/service/ *
+          zip -r dependencies.zip python
+          zip -r lambda.zip apps/service
           aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
           aws s3 cp dependencies.zip s3://email-sender-service-bucket/dependencies.zip
 
