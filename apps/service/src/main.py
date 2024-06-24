@@ -1,7 +1,6 @@
 import re
 import boto3
 import os
-from botocore.exceptions import ClientError
 from exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
