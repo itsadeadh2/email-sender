@@ -28,9 +28,15 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: email-sender-service-bucket
-          template: apps/service/cloudformation/s3.yml
+          template: apps/cloudformation/s3.yml
           no-fail-on-empty-changeset: 1
 
+      - name: Deploy SQS
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: email-sender-service-sqs
+          template: apps/cloudformation/sqs.yml
+          no-fail-on-empty-changeset: 1
 
       - name: Install python
         uses: actions/setup-python@v5
@@ -42,11 +48,11 @@ jobs:
         run: |
           python -m venv venv          
           source venv/bin/activate
-          pip install -r apps/service/requirements.txt
+          pip install -r apps/requirements.txt
           mkdir python
           cp -r venv/lib python/
           zip -r dependencies.zip python          
-          mv apps/service/src src      
+          mv apps/src src      
           zip -r -j lambda.zip src/
           aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
           aws s3 cp dependencies.zip s3://email-sender-service-bucket/dependencies.zip
@@ -55,6 +61,6 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: email-sender-service
-          template: apps/service/cloudformation/lambda.yml
-          parameter-overrides: "SourceCommit=${{ github.run_id }}"
+          template: apps/cloudformation/lambda.yml
+          parameter-overrides: "Revision=${{ github.run_id }}"
           no-fail-on-empty-changeset: 1

@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Deploy python lambda
 
 Parameters:
-  SourceCommit:
+  Revision:
     Type: String
     Description: The commit that originated this deployment. Helps trigger new deploys to the lambda.
 
@@ -10,7 +10,7 @@ Resources:
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-${SourceCommit}"
+      FunctionName: !Sub "${AWS::StackName}-${Revision}"
       Handler: main.lambda_handler
       Role:
         Fn::GetAtt:
@@ -19,6 +19,10 @@ Resources:
       Code:
         S3Bucket: email-sender-service-bucket
         S3Key: lambda.zip
+      Environment:
+        Variables:
+          QUEUE_URL: !ImportValue "email-sender-service-sqs-url-export"
+          QUEUE_NAME: !ImportValue "email-sender-service-sqs-name-export"
       Runtime: python3.10
       MemorySize: 128
       Timeout: 30
@@ -59,7 +63,7 @@ Resources:
   LambdaLayer:
     Type: AWS::Lambda::LayerVersion
     Properties:
-      LayerName: !Sub "${AWS::StackName}-${SourceCommit}"
+      LayerName: !Sub "${AWS::StackName}-${Revision}"
       CompatibleRuntimes:
         - python3.10
       Content:
