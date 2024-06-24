@@ -29,7 +29,7 @@ class EmailDAL:
 
 
 class QueueService:
-    def __int__(self, sqs=None):
+    def __init__(self, sqs=None):
         self.sqs = sqs or boto3.client('sqs')
         self.queue_url = os.getenv('QUEUE_URL')
 
