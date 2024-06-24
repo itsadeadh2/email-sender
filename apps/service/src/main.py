@@ -2,7 +2,7 @@ import re
 import boto3
 import os
 from botocore.exceptions import ClientError
-from .exc import InvalidEmailError, PersistenceError, QueueInteractionError
+from exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
 class Validators:
@@ -42,11 +42,11 @@ class EmailDAL:
 
             table.meta.client.get_waiter('table_exists').wait(TableName='EmailTable')
             print("Table created successfully.")
+            return table
         except ClientError as e:
             if e.response['Error']['Code'] == 'ResourceInUseException':
                 print("Table already exists.")
-        finally:
-            return table
+                return self.db.Table('EmailTable')
 
     def save(self, email):
         try:
