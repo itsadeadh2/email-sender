@@ -49,6 +49,7 @@ jobs:
           mv apps/service/src src      
           zip -r -j lambda.zip src/
           aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
+          aws s3 cp dependencies.zip s3://email-sender-service-bucket/dependencies.zip
 
       - name: Deploy lambda
         uses: aws-actions/aws-cloudformation-github-deploy@v1
