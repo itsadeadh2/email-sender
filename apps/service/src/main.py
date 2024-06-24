@@ -1,7 +1,7 @@
 import re
 import boto3
 import os
-from exc import InvalidEmailError, PersistenceError, QueueInteractionError
+from .exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
 class Validators:
