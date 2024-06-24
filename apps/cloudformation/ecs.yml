@@ -36,8 +36,8 @@ Resources:
               - !Sub ":${Revision}"
           Essential: true
           Environment:
-            - Name: FOO
-              Value: 'BAR'
+            - Name: QUEUE_URL
+              Value: !ImportValue "email-sender-service-sqs-url-export"
           LogConfiguration:
             LogDriver: awslogs
             Options:
