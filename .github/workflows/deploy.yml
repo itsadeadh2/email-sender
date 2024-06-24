@@ -42,7 +42,7 @@ jobs:
         run: |
           python -m venv venv          
           source venv/bin/activate
-          pip install -r requirements.txt
+          pip install -r apps/service/requirements.txt
           mkdir python
           cp -r venv/lib python/
           zip -r dependencies.zip python          
