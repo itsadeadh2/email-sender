@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   deploy_infra:
-    name: Deploy service to lambda
+    name: Deploy infrastructure
     runs-on: ubuntu-latest
     environment: production
 
@@ -76,7 +76,7 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install -r apps/service/requirements.txt
-          coverage run -m unittest discover -s apps/service/tests -v
+          coverage run -m unittest discover -s apps/service/src/tests -v
 
       - name: Zip and Upload lambda
         run: |
