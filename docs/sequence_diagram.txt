@@ -1,0 +1,17 @@
+title EMAIL SENDER SEQUENCE
+
+Client -> Client: Collect user email
+Client -> Client: Prepare request to API containing user's email
+Client -> Email Sender: Send contact request
+Email Sender -> Email Sender: Receive user's email
+Email Sender -> Email Worker: Add email to QUEUE
+Email Worker -> Email Worker: Consume message from queue
+Email Worker -> Email Worker: Retrieve my relevant info
+Email Worker -> Email Worker: Send email with relevant info
+
+
+Email Sender -> Email Sender: Store user email on db
+Email Sender -> Client: send response
+Client -> Client: Display message saying that the email should arrive soon
+
+# https://sequencediagram.org/

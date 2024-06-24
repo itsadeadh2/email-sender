@@ -1,0 +1,59 @@
+name: Deploy Email Sender Service/Worker
+
+on:
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_service:
+    name: Deploy service to lambda
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy bucket
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: email-sender-service
+          template: apps/service/cloudformation/s3.yml
+          no-fail-on-empty-changeset: 1
+
+
+      - Name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+
+      - name: Zip and Upload lambda
+        run: |
+          python -m venv venv          
+          source venv/bin/activate
+          pip install -r requirements.txt
+          mkdir python
+          cp -r venv/lib python/
+          zip -r dependencies.zip python          
+          mv apps/service/src src      
+          zip -r lambda.zip src/
+          aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
+
+      - name: Deploy lambda
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: email-sender-service
+          template: apps/service/cloudformation/lambda.yml
+          parameter-overrides: "SourceCommit=${{ github.run_id }}"
+          no-fail-on-empty-changeset: 1
