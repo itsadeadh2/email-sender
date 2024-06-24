@@ -11,7 +11,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "${AWS::StackName}-${Revision}"
-      Handler: main.lambda_handler
+      Handler: apps.service.src.main.lambda_handler
       Role:
         Fn::GetAtt:
           - LambdaExecutionRole
