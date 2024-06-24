@@ -31,7 +31,7 @@ class Runner:
 
     def process(self, *args, **kwargs):
         try:
-            response = self.queue_service(*args, **kwargs)
+            response = self.queue_service.receive_message(*args, **kwargs)
             if "Messages" in response:
                 messages_list = response["Messages"]
                 for message in messages_list:
