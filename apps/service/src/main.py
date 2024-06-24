@@ -2,7 +2,7 @@ import re
 import boto3
 import os
 from botocore.exceptions import ClientError
-from apps.service.src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
+from .exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
 class Validators:
