@@ -40,7 +40,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: email-sender-service-table
-          template: apps/cloudformation/dynamo.yml
+          template: cloudformation/dynamo.yml
           no-fail-on-empty-changeset: 1
 
   deploy_service:
