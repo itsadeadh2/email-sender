@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
-from apps.service.src.main import Validators, Service
-from apps.service.src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
+from src.main import Validators, Service
+from src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
 class TestValidators(unittest.TestCase):

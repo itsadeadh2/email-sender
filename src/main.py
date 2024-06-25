@@ -1,7 +1,7 @@
 import re
 import boto3
 import os
-from apps.service.src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
+from src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 
 class Validators:

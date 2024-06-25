@@ -1,6 +1,0 @@
-boto3
-coverage
-python-dotenv
-requests
-pydantic
-pydantic[email]
