@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #4CAF50;
+            color: #ffffff;
+            padding: 10px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .footer {
+            background-color: #4CAF50;
+            color: #ffffff;
+            padding: 10px;
+            text-align: center;
+        }
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ email.greeting }}</h1>
+        </div>
+        <div class="content">
+            <p>
+                {{ email.message }}
+            </p>
+            <p>
+                <strong>E-Mail:</strong> <a href="mailto:{{ email.links.email }}">itsadeadh2@gmail.com</a><br>
+                <strong>WhatsApp:</strong> <a href={{ email.links.whatsapp }}>+55 69 992219034<a/><br>
+                <strong>GitHub:</strong> <a href={{ email.links.github }}>https://github.com/itsadeadh2</a><br>
+                <strong>Website:</strong> <a href={{ email.links.website }}>https://itsadeadh2.com</a><br>
+                <strong>LinkedIn:</strong> <a href={{ email.links.linkedin }}>https://www.linkedin.com/in/barbosathiagodev/</a><br>
+                <strong>Resume:</strong> Thiago Barbosa
+            </p>
+            <p>
+                Hope to hear from you soon,<br>
+                Thiago Barbosa
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 Thiago Barbosa</p>
+        </div>
+    </div>
+</body>
+</html>
