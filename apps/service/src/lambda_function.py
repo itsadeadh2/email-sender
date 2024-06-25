@@ -1,4 +1,4 @@
-from app import app  # Assuming your Flask app is in app.py
+from apps.service.src.app import app  # Assuming your Flask app is in app.py
 import serverless_wsgi
 
 
