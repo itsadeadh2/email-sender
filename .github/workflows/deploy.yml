@@ -33,7 +33,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: email-sender-service-bucket
-          template: apps/cloudformation/s3.yml
+          template: cloudformation/s3.yml
           no-fail-on-empty-changeset: 1
 
       - name: Deploy DynamoDB
