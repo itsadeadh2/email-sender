@@ -36,7 +36,7 @@ class Runner:
                 messages_list = response["Messages"]
                 for message in messages_list:
                     email = message.get("Body")
-                    print(f'Received email: f{email}')
+                    print(f'Received email: {email}')
                     self.queue_service.delete_message(receipt_handle=message["ReceiptHandle"])
         except Exception as e:
             print(f"There was an error while consuming the message: {str(e)}")

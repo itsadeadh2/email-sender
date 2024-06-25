@@ -10,7 +10,7 @@ Resources:
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-${Revision}"
+      FunctionName: !Sub "${AWS::StackName}"
       Handler: apps.service.src.main.lambda_handler
       Role:
         Fn::GetAtt:
@@ -18,7 +18,7 @@ Resources:
           - Arn
       Code:
         S3Bucket: email-sender-service-bucket
-        S3Key: lambda.zip
+        S3Key: !Sub "${Revision}.zip"
       Environment:
         Variables:
           QUEUE_URL: !ImportValue "email-sender-service-sqs-url-export"
@@ -87,3 +87,10 @@ Resources:
       Content:
         S3Bucket: email-sender-service-bucket
         S3Key: dependencies.zip
+
+Outputs:
+  LambdaName:
+    Description: Name of the lambda
+    Value: !Ref MyLambdaFunction
+    Export:
+      Name: !Sub "${AWS::StackName}-export"

@@ -96,7 +96,7 @@ jobs:
           cp -r venv/lib python/
           zip -r dependencies.zip python
           zip -r lambda.zip apps/service/src
-          aws s3 cp lambda.zip s3://email-sender-service-bucket/lambda.zip
+          aws s3 cp lambda.zip s3://email-sender-service-bucket/${{ github.run_id }}.zip
           aws s3 cp dependencies.zip s3://email-sender-service-bucket/dependencies.zip
 
       - name: Deploy lambda
