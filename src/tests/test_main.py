@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock
-from src.main import Validators, Service
+from src.services import Validators, Service
 from src.exc import InvalidEmailError, PersistenceError, QueueInteractionError
 
 

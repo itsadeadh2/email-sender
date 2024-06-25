@@ -43,7 +43,7 @@ class QueueService:
             raise QueueInteractionError(f"There was an error when sending the email to the sqs queue {str(e)}")
 
 
-class Service:
+class Handler:
     def __init__(
             self,
             validators: Validators,
@@ -54,39 +54,25 @@ class Service:
         self.email_dal = email_dal
         self.queue_service = queue_service
 
-    def handle(self, event, context=None):
+    def handle(self, data):
         try:
-            email = event.get('email', '')
+            email = data.get('email', '')
             self.validators.validate_email(email)
             self.email_dal.save(email)
             self.queue_service.add_to_queue(email)
             return {
                 "message": f"Successfully received contact request. You should receive an email shortly on {email} with my contact information.",
-                "status_code": 200
-            }
+            }, 200
         except InvalidEmailError as e:
             return {
-                "message": str(e),
-                "status_code": 400
-            }
+                "message": str(e)
+            }, 400
         except PersistenceError as e:
             return {
                 "message": str(e),
-                "status_code": 500
-            }
+            }, 500
         except QueueInteractionError as e:
             return {
                 "message": str(e),
-                "status_code": 500
-            }
+            }, 500
 
-
-def lambda_handler(event, context):
-    email_dal = EmailDAL()
-    queue_service = QueueService()
-    service = Service(
-        validators=Validators,
-        email_dal=email_dal,
-        queue_service=queue_service
-    )
-    return service.handle(event=event, context=context)
