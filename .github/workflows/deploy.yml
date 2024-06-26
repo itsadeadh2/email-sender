@@ -38,6 +38,13 @@ jobs:
           template: cloudformation/ecr.yml
           no-fail-on-empty-changeset: 1
 
+      - name: Deploy DynamoDB
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: email-sender-table
+          template: cloudformation/dynamo.yml
+          no-fail-on-empty-changeset: 1
+
   push-image:
     name: Push image to ECR
     runs-on: ubuntu-latest

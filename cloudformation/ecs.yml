@@ -38,11 +38,11 @@ Resources:
           Essential: true
           Environment:
             - Name: QUEUE_URL
-              Value: !ImportValue "email-sender-service-sqs-url-export"
+              Value: !ImportValue "email-worker-sqs-url-export"
             - Name: QUEUE_NAME
-              Value: !ImportValue "email-sender-service-sqs-name-export"
+              Value: !ImportValue "email-worker-sqs-name-export"
             - Name: TABLE_NAME
-              Value: !ImportValue "email-sender-service-table-name-export"
+              Value: !ImportValue "email-sender-table-name-export"
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:

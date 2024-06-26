@@ -1,0 +1,20 @@
+Resources:
+  MyDynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: !Sub "${AWS::StackName}"
+      AttributeDefinitions:
+        - AttributeName: 'email'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'email'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+Outputs:
+  DynamoDBTableName:
+    Description: 'The name of the DynamoDB table'
+    Value: !Ref MyDynamoDBTable
+    Export:
+      Name: !Sub "${AWS::StackName}-name-export"
