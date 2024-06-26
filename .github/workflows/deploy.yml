@@ -1,4 +1,4 @@
-name: Deploy Email Sender Service/Worker
+name: Deploy to Amazon ECS
 
 on:
   push:
@@ -8,19 +8,14 @@ permissions:
   contents: read
 
 jobs:
-  deploy_infra:
-    name: Deploy infrastructure
+  deploy-infra:
+    name: Deploy infra
     runs-on: ubuntu-latest
     environment: production
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Install python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -29,34 +24,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy bucket
+      - name: Deploy ELB
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: email-sender-service-bucket
-          template: cloudformation/s3.yml
+          name: email-sender-elb
+          template: cloudformation/elb.yml
           no-fail-on-empty-changeset: 1
 
-      - name: Deploy DynamoDB
+      - name: Deploy ECR
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: email-sender-service-table
-          template: cloudformation/dynamo.yml
+          name: email-sender-ecr
+          template: cloudformation/ecr.yml
           no-fail-on-empty-changeset: 1
 
-  deploy_service:
-    name: Deploy service to lambda
+  push-image:
+    name: Push image to ECR
     runs-on: ubuntu-latest
     environment: production
-    needs: ['deploy_infra']
+    needs: [deploy-infra]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Install python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -65,30 +55,48 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Run tests
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          coverage run -m unittest discover -s src/tests -v
-          coverage report
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registries: ${{ secrets.AWS_ACCOUNT_ID }}
+          mask-password: "true"
 
-      - name: Zip and Upload lambda
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-publish
+        shell: bash
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: email-sender-ecr
+          IMAGE_TAG: ${{ github.run_id }}
         run: |
-          python -m venv venv          
-          source venv/bin/activate
-          pip install -r requirements.txt
-          mkdir python
-          cp -r venv/lib python/
-          zip -r dependencies.zip python
-          zip -r lambda.zip src
-          aws s3 cp lambda.zip s3://email-sender-service-bucket/${{ github.run_id }}.zip
-          aws s3 cp dependencies.zip s3://email-sender-service-bucket/dependencies.zip
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+          echo "image_tag=$IMAGE_TAG" 
+          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Deploy lambda
+  deploy-app:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [push-image]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy app
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: email-sender-service
-          template: cloudformation/lambda.yml
+          name: email-sender-ecs
+          template: cloudformation/ecs.yml
           parameter-overrides: "Revision=${{ github.run_id }}"
           no-fail-on-empty-changeset: 1

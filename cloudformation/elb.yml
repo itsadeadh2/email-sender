@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "AWS CloudFormation Template to deploy a fargate service"
+
+Parameters:
+  TargetDomain:
+    Type: String
+    Description: 'Target domain for the ALB'
+    Default: "itsadeadh2.com"
+    
+Resources:
+  # Existing resources
+
+  # Create an Application Load Balancer (ALB)
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      Subnets:
+        - !ImportValue private-subnet-1-export
+        - !ImportValue private-subnet-2-export
+      SecurityGroups:
+        - !ImportValue securitygroup-export  # Adjust accordingly
+      Scheme: internal
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: "60"  # Example timeout value, adjust as needed
+
+  # Create a Target Group for ECS Service
+  ECSTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      Port: 80
+      Protocol: HTTP
+      VpcId: !ImportValue vpc-id-export  # Adjust to your VPC
+      TargetType: ip  # Use IP targeting for Fargate
+      HealthCheckIntervalSeconds: 30  # Health check interval
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /  # Health check endpoint
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+
+  # Create a Listener to route HTTP traffic from the ALB to the Target Group
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80  # HTTP port
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ECSTargetGroup
+
+Outputs:
+  TargetGroup:
+    Value: !Ref ECSTargetGroup
+    Export:
+      Name: !Sub "${AWS::StackName}-targetgroup-export"
+
+  ALBURL:
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Description: "The DNS name of the Application Load Balancer"
+    Export:
+      Name: !Sub "${AWS::StackName}-url-export"

@@ -1,5 +1,5 @@
 boto3
 coverage
 Flask
-serverless-wsgi
 flask-smorest
+gunicorn
