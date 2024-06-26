@@ -36,6 +36,13 @@ Resources:
             - - !ImportValue 'email-sender-ecr-export'
               - !Sub ":${Revision}"
           Essential: true
+          Environment:
+            - Name: QUEUE_URL
+              Value: !ImportValue "email-sender-service-sqs-url-export"
+            - Name: QUEUE_NAME
+              Value: !ImportValue "email-sender-service-sqs-name-export"
+            - Name: TABLE_NAME
+              Value: !ImportValue "email-sender-service-table-name-export"
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
