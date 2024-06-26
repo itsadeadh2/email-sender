@@ -3,7 +3,7 @@ from flask import Flask, request
 from flask_smorest import Api
 from flask_smorest import Blueprint
 from flask.views import MethodView
-from services import QueueService, EmailDAL, Handler, Validators
+from src.services import QueueService, EmailDAL, Handler, Validators
 
 app = Flask(__name__)
 app.config["PROPAGATE_EXCEPTIONS"] = True
