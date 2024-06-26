@@ -36,7 +36,7 @@ Resources:
       TargetType: ip  # Use IP targeting for Fargate
       HealthCheckIntervalSeconds: 30  # Health check interval
       HealthCheckProtocol: HTTP
-      HealthCheckPath: /  # Health check endpoint
+      HealthCheckPath: /health  # Health check endpoint
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 2

@@ -18,8 +18,9 @@ def create_app():
     api = Api(app)
 
 
-    blp = Blueprint("email", "email", description="Operations on emails")
-    @blp.route('/email')
+    email_bp = Blueprint("email", "email", description="Operations on emails")
+    health_bp = Blueprint("healt", "health", description="Healtcheck operations")
+    @email_bp.route('/email')
     class Email(MethodView):
         def __init__(self):
             self.handler = Handler(
@@ -37,7 +38,14 @@ def create_app():
             print("test")
             return {"emails": []}, 200
 
-    api.register_blueprint(blp)
+    @health_bp.route('/health')
+    class Health(MethodView):
+        def get(self):
+            print("test")
+            return {}, 200
+
+    api.register_blueprint(email_bp)
+    api.register_blueprint(health_bp)
 
     return app
 
