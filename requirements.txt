@@ -3,3 +3,4 @@ coverage
 Flask
 flask-smorest
 gunicorn
+python-dotenv

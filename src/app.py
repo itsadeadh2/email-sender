@@ -1,9 +1,10 @@
 # app.py
 from flask import Flask, request
-from flask_smorest import Api
+from flask_smorest import Api, abort
 from flask_smorest import Blueprint
 from flask.views import MethodView
 from src.services import QueueService, EmailDAL, Handler, Validators
+
 
 def create_app():
     app = Flask(__name__)
@@ -17,9 +18,9 @@ def create_app():
 
     api = Api(app)
 
-
     email_bp = Blueprint("email", "email", description="Operations on emails")
     health_bp = Blueprint("healt", "health", description="Healtcheck operations")
+
     @email_bp.route('/email')
     class Email(MethodView):
         def __init__(self):
@@ -30,9 +31,12 @@ def create_app():
             )
 
         def post(self):
-            body = request.get_json()
-            data, status = self.handler.handle(body)
-            return data, status
+            try:
+                body = request.get_json()
+                data, status = self.handler.handle(body)
+                return data, status
+            except Exception as e:
+                abort(500, e)
 
         def get(self):
             print("test")
@@ -52,4 +56,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='localhost', port=3000)
+    app.run(host='localhost', port=5000)
