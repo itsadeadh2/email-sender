@@ -1,9 +1,8 @@
-# app.py
-from flask import Flask, request
-from flask_smorest import Api, abort
-from flask_smorest import Blueprint
-from flask.views import MethodView
-from src.services import QueueService, EmailDAL, Handler, Validators
+import os
+from flask import Flask
+from flask_smorest import Api
+
+from src.resources import email_bp, health_bp
 
 
 def create_app():
@@ -16,37 +15,10 @@ def create_app():
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
+    app.config["TABLE_NAME"] = os.getenv("TABLE_NAME", 'foo')
+    app.config["QUEUE_URL"] = os.getenv("QUEUE_URL", 'foo')
+
     api = Api(app)
-
-    email_bp = Blueprint("email", "email", description="Operations on emails")
-    health_bp = Blueprint("healt", "health", description="Healtcheck operations")
-
-    @email_bp.route('/email')
-    class Email(MethodView):
-        def __init__(self):
-            self.handler = Handler(
-                validators=Validators,
-                email_dal=EmailDAL(),
-                queue_service=QueueService()
-            )
-
-        def post(self):
-            try:
-                body = request.get_json()
-                data, status = self.handler.handle(body)
-                return data, status
-            except Exception as e:
-                abort(500, e)
-
-        def get(self):
-            print("test")
-            return {"emails": []}, 200
-
-    @health_bp.route('/health')
-    class Health(MethodView):
-        def get(self):
-            print("test")
-            return {}, 200
 
     api.register_blueprint(email_bp)
     api.register_blueprint(health_bp)

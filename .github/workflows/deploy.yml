@@ -8,10 +8,32 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Run tests
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          coverage run -m unittest discover -s src/tests -v
+          coverage report
+
   deploy-infra:
     name: Deploy infra
     runs-on: ubuntu-latest
     environment: production
+    needs: [test]
 
     steps:
       - name: Checkout
