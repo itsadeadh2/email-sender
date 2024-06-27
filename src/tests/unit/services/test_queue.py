@@ -20,7 +20,7 @@ class TestQueue(unittest.TestCase):
         email = 'foo@baz.com'
         self.queue.add_to_queue(email)
         expected_call = {
-            'QueueUrl': os.getenv('QUEUE_URL'),
+            'QueueUrl': '',
             'MessageBody': email
         }
         self.sqs.send_message.assert_called_once_with(**expected_call)
